@@ -1,13 +1,8 @@
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
+import router from './routes';
 
 const app: Application = express();
-const PORT: Number = 3000;
 app.use(express.json());
+app.use(router);
 
-app.get('/health', (_req, res) => {
-  res.send({ status: 'OK' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
-});
+export default app;
