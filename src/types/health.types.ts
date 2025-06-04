@@ -1,3 +1,5 @@
 export type HealthStatus = {
-  status: string;
+  status: 'OK' | 'ERROR';
+  database: 'UP' | 'DOWN';
+  message?: string;
 };
