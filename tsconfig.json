@@ -10,7 +10,9 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"],
   "exclude": ["dist"]
