@@ -48,11 +48,13 @@ export class UserController {
     } catch (err: any) {
       const response: UserResponse = err.message.includes('not found')
         ? { code: 404, error: 'Not Found', message: err.message }
-        : {
-            code: 500,
-            error: 'Internal Server Error',
-            message: 'An unexpected error occurred',
-          };
+        : err.message.includes('already exists')
+          ? { code: 409, error: 'Conflict', message: err.message }
+          : {
+              code: 500,
+              error: 'Internal Server Error',
+              message: 'An unexpected error occurred',
+            };
       res.status(response.code).send(response);
     }
   };
