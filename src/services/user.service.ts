@@ -3,9 +3,13 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { IUserService } from '../types/user-service.interface';
+import { IHashService } from '../types/hash-service.interface';
 
 export class UserService implements IUserService {
-  constructor(private readonly userRepository: Repository<User>) {}
+  constructor(
+    private readonly userRepository: Repository<User>,
+    private readonly hashService: IHashService,
+  ) {}
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.findOne({
       where: { username: createUserDto.username },
@@ -15,6 +19,9 @@ export class UserService implements IUserService {
         `User with username ${createUserDto.username} already exists`,
       );
     }
+    createUserDto.password = await this.hashService.hashPassword(
+      createUserDto.password,
+    );
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
   }
@@ -48,6 +55,9 @@ export class UserService implements IUserService {
         );
       }
     }
+    updateUserDto.password = updateUserDto.password
+      ? await this.hashService.hashPassword(updateUserDto.password)
+      : user.password;
     this.userRepository.merge(user, updateUserDto);
     return this.userRepository.save(user);
   }
