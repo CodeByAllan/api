@@ -7,6 +7,8 @@ import { HashService } from '../services/hash.service';
 import { validateDto } from '../middlewares/validate-dto.middleware';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
+import { ResponseUserDto } from '../dtos/response-user.dto';
+import { transformResponseDto } from '../middlewares/transform-response.middleware';
 
 const userRouter: Router = Router();
 
@@ -15,6 +17,7 @@ const hashService = new HashService();
 const userService: UserService = new UserService(userRepository, hashService);
 const userController: UserController = new UserController(userService);
 userRouter
+  .use(transformResponseDto(ResponseUserDto))
   .route('/user')
   .post(validateDto(CreateUserDto), userController.create)
   .get(userController.getAll);
