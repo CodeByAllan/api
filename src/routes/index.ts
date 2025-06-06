@@ -3,7 +3,7 @@ import healthRouter from './health.routes';
 import userRouter from './user.routes';
 
 const router: Router = Router();
-
-router.use(healthRouter, userRouter);
+router.use('/health', healthRouter);
+router.use('/user', userRouter);
 
 export default router;

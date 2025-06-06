@@ -6,5 +6,5 @@ const healthRouter: Router = Router();
 const healthService: HealthService = new HealthService();
 const healthController: HealthController = new HealthController(healthService);
 
-healthRouter.get('/health', healthController.checkHealth);
+healthRouter.route('/').get(healthController.checkHealth);
 export default healthRouter;

@@ -18,11 +18,11 @@ const userService: UserService = new UserService(userRepository, hashService);
 const userController: UserController = new UserController(userService);
 userRouter
   .use(transformResponseDto(ResponseUserDto))
-  .route('/user')
+  .route('/')
   .post(validateDto(CreateUserDto), userController.create)
   .get(userController.getAll);
 userRouter
-  .route('/user/:id')
+  .route('/:id')
   .get(userController.getById)
   .patch(validateDto(UpdateUserDto), userController.update)
   .delete(userController.softDelete);
