@@ -22,4 +22,5 @@ export const env = {
   DB_PASS: requireEnv('DB_PASS'),
   DB_NAME: requireEnv('DB_NAME'),
   DB_SSL: requireEnv('DB_SSL') === 'true',
+  JWT_SECRET: requireEnv('JWT_SECRET'),
 };
