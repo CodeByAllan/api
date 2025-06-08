@@ -5,6 +5,7 @@ import { AuthUserDto } from '../dtos/auth-user.dto';
 import { IHashService } from '../types/hash-service.interface';
 import { IJwtService } from '../types/jwt-service.interface';
 import { env } from '../config/env';
+import { InvalidCredentialsError } from '../errors/invalid-credentials.error';
 
 export class AuthService implements IAuthService {
   constructor(
@@ -23,7 +24,7 @@ export class AuthService implements IAuthService {
         user.password,
       ))
     ) {
-      throw new Error('Credentials are not valid!');
+      throw new InvalidCredentialsError();
     }
 
     return {

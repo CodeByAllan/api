@@ -4,6 +4,8 @@ import { UpdateUserDto } from '../dtos/update-user.dto';
 import { User } from '../entities/user.entity';
 import { IUserService } from '../types/user-service.interface';
 import { IHashService } from '../types/hash-service.interface';
+import { NotFoundError } from '../errors/not-found.error';
+import { ConflictError } from '../errors/conflict.error';
 
 export class UserService implements IUserService {
   constructor(
@@ -15,9 +17,7 @@ export class UserService implements IUserService {
       where: { username: createUserDto.username },
     });
     if (existingUser) {
-      throw new Error(
-        `User with username ${createUserDto.username} already exists`,
-      );
+      throw new ConflictError(`User with username ${createUserDto.username}`);
     }
     createUserDto.password = await this.hashService.hashPassword(
       createUserDto.password,
@@ -36,7 +36,7 @@ export class UserService implements IUserService {
       withDeleted: false,
     });
     if (!user) {
-      throw new Error(`User with id ${id} not found`);
+      throw new NotFoundError(`User with id ${id}`);
     }
     return user;
   }
@@ -50,9 +50,7 @@ export class UserService implements IUserService {
       });
 
       if (existingUser) {
-        throw new Error(
-          `User with username ${updateUserDto.username} already exists`,
-        );
+        throw new ConflictError(`User with username ${updateUserDto.username}`);
       }
     }
     updateUserDto.password = updateUserDto.password
