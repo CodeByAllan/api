@@ -9,6 +9,8 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { ResponseUserDto } from '../dtos/response-user.dto';
 import { transformResponseDto } from '../middlewares/transform-response.middleware';
+import { auth } from '../middlewares/auth.middleware';
+import { JwtService } from '../services/jwt.service';
 
 const userRouter: Router = Router();
 
@@ -16,7 +18,9 @@ const userRepository = PostgresDataSource.getRepository(User);
 const hashService = new HashService();
 const userService: UserService = new UserService(userRepository, hashService);
 const userController: UserController = new UserController(userService);
+const jwtService: JwtService = new JwtService();
 userRouter
+  .use(auth(jwtService))
   .use(transformResponseDto(ResponseUserDto))
   .route('/')
   .post(validateDto(CreateUserDto), userController.create)
