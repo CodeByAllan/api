@@ -12,12 +12,18 @@ import { transformResponseDto } from '../middlewares/transform-response.middlewa
 import { auth } from '../middlewares/auth.middleware';
 import { JwtService } from '../services/jwt.service';
 import { AuthorizeAdminOrOwner } from '../middlewares/authorize-admin-owner.middleware';
+import { CacheService } from '../services/cache.service';
 
 const userRouter: Router = Router();
 
 const userRepository = PostgresDataSource.getRepository(User);
 const hashService = new HashService();
-const userService: UserService = new UserService(userRepository, hashService);
+const cacheService = new CacheService();
+const userService: UserService = new UserService(
+  userRepository,
+  hashService,
+  cacheService,
+);
 const userController: UserController = new UserController(userService);
 const jwtService: JwtService = new JwtService();
 userRouter

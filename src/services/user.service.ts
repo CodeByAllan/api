@@ -6,12 +6,13 @@ import { IUserService } from '../types/user-service.interface';
 import { IHashService } from '../types/hash-service.interface';
 import { NotFoundError } from '../errors/not-found.error';
 import { ConflictError } from '../errors/conflict.error';
-import redisClient from '../database/redis';
+import { ICacheService } from '../types/cache-service.interface';
 
 export class UserService implements IUserService {
   constructor(
     private readonly userRepository: Repository<User>,
     private readonly hashService: IHashService,
+    private readonly cacheService: ICacheService,
   ) {}
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.findOne({
@@ -28,12 +29,12 @@ export class UserService implements IUserService {
   }
 
   async getAll(): Promise<User[]> {
-    const cachedUsers = await redisClient.get('users');
+    const cachedUsers = await this.cacheService.get('users');
     if (cachedUsers) {
       return JSON.parse(cachedUsers);
     }
     const users = await this.userRepository.find();
-    await redisClient.set('users', JSON.stringify(users), {
+    await this.cacheService.set('users', JSON.stringify(users), {
       EX: 60,
     });
     return users;
