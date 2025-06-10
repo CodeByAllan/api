@@ -6,16 +6,18 @@ import { PostgresDataSource } from '../database/database';
 import { HashService } from '../services/hash.service';
 import { validateDto } from '../middlewares/validate-dto.middleware';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { UpdateUserDto } from '../dtos/update-user.dto';
-import { ResponseUserDto } from '../dtos/response-user.dto';
-import { transformResponseDto } from '../middlewares/transform-response.middleware';
 import { auth } from '../middlewares/auth.middleware';
 import { JwtService } from '../services/jwt.service';
 import { AuthorizeAdminOrOwner } from '../middlewares/authorize-admin-owner.middleware';
 import { CacheService } from '../services/cache.service';
+import { transformResponseDto } from '../middlewares/transform-response.middleware';
+import { ResponseUserDto } from '../dtos/response-user.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
-const userRouter: Router = Router();
+const publicUser: Router = Router();
+const protectUser: Router = Router();
 
+const jwtService: JwtService = new JwtService();
 const userRepository = PostgresDataSource.getRepository(User);
 const hashService = new HashService();
 const cacheService = new CacheService();
@@ -24,20 +26,22 @@ const userService: UserService = new UserService(
   hashService,
   cacheService,
 );
+const protect = [auth(jwtService), AuthorizeAdminOrOwner()];
 const userController: UserController = new UserController(userService);
-const jwtService: JwtService = new JwtService();
-userRouter
+
+publicUser.post('/', validateDto(CreateUserDto), userController.create);
+
+protectUser
   .use(transformResponseDto(ResponseUserDto))
   .route('/')
-  .post(validateDto(CreateUserDto), userController.create)
-  .all(auth(jwtService), AuthorizeAdminOrOwner())
+  .all(...protect)
   .get(userController.getAll);
 
-userRouter
+protectUser
   .route('/:id')
-  .all(auth(jwtService), AuthorizeAdminOrOwner())
+  .all(...protect)
   .get(userController.getById)
   .patch(validateDto(UpdateUserDto), userController.update)
   .delete(userController.softDelete);
 
-export default userRouter;
+export { publicUser, protectUser };
