@@ -6,6 +6,7 @@ import { IUserService } from '../types/user-service.interface';
 import { IHashService } from '../types/hash-service.interface';
 import { NotFoundError } from '../errors/not-found.error';
 import { ConflictError } from '../errors/conflict.error';
+import redisClient from '../database/redis';
 
 export class UserService implements IUserService {
   constructor(
@@ -27,7 +28,15 @@ export class UserService implements IUserService {
   }
 
   async getAll(): Promise<User[]> {
-    return this.userRepository.find();
+    const cachedUsers = await redisClient.get('users');
+    if (cachedUsers) {
+      return JSON.parse(cachedUsers);
+    }
+    const users = await this.userRepository.find();
+    await redisClient.set('users', JSON.stringify(users), {
+      EX: 60,
+    });
+    return users;
   }
 
   async getById(id: number): Promise<User> {
