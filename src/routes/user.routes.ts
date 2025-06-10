@@ -11,6 +11,7 @@ import { ResponseUserDto } from '../dtos/response-user.dto';
 import { transformResponseDto } from '../middlewares/transform-response.middleware';
 import { auth } from '../middlewares/auth.middleware';
 import { JwtService } from '../services/jwt.service';
+import { AuthorizeAdminOrOwner } from '../middlewares/authorize-admin-owner.middleware';
 
 const userRouter: Router = Router();
 
@@ -23,12 +24,12 @@ userRouter
   .use(transformResponseDto(ResponseUserDto))
   .route('/')
   .post(validateDto(CreateUserDto), userController.create)
-  .all(auth(jwtService))
+  .all(auth(jwtService), AuthorizeAdminOrOwner())
   .get(userController.getAll);
 
 userRouter
   .route('/:id')
-  .all(auth(jwtService))
+  .all(auth(jwtService), AuthorizeAdminOrOwner())
   .get(userController.getById)
   .patch(validateDto(UpdateUserDto), userController.update)
   .delete(userController.softDelete);
