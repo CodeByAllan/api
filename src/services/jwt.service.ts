@@ -6,10 +6,13 @@ export class JwtService implements IJwtService {
   signin(payload: object, privateKey: string, options: object): string {
     return jwt.sign(payload, privateKey, options);
   }
-  verify(token: string, privateKey: string): string | jwt.JwtPayload {
+  verify<T>(token: string, privateKey: string): T {
     try {
       const payload = jwt.verify(token, privateKey);
-      return payload;
+      if (typeof payload === 'string') {
+        throw new UnauthorizedError();
+      }
+      return payload as T;
     } catch {
       throw new UnauthorizedError();
     }

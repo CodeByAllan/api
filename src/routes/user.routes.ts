@@ -20,13 +20,15 @@ const userService: UserService = new UserService(userRepository, hashService);
 const userController: UserController = new UserController(userService);
 const jwtService: JwtService = new JwtService();
 userRouter
-  .use(auth(jwtService))
   .use(transformResponseDto(ResponseUserDto))
   .route('/')
   .post(validateDto(CreateUserDto), userController.create)
+  .all(auth(jwtService))
   .get(userController.getAll);
+
 userRouter
   .route('/:id')
+  .all(auth(jwtService))
   .get(userController.getById)
   .patch(validateDto(UpdateUserDto), userController.update)
   .delete(userController.softDelete);
